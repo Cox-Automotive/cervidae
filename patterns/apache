@@ -1,2 +1,0 @@
-#== Standard Apache output ==
-APACHELOG %{IPORHOST:clientip} %{USER:ident} %{USER:auth} \[%{HTTPDATE:timestamp}\] "(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?)" %{NUMBER:response} (?:%{NUMBER:bytes:int}|-) %{QS:referrer} %{QS:agent}
