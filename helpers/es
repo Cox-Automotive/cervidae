@@ -66,7 +66,7 @@ do_start()
 			fi
 		fi
 
-		if [ $STARTED -eq 1]
+		if [ $STARTED -eq 1 ]
 		then
 			echo "$BASE was started on process $RUNNING_PID"
 		else
