@@ -6,7 +6,10 @@ Get an ELK stack up and running quickly and easily.
 
 Download the cervidae.sh script to your Linux box and run it. 
 
-```$ wget https://raw.githubusercontent.com/andrew-sledge/cervidae/master/cervidae.sh | sh```
+```
+$ wget https://raw.githubusercontent.com/andrew-sledge/cervidae/master/cervidae.sh
+$ bash ./cervidae.sh
+```
 
 ## What to expect
 
