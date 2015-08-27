@@ -4,23 +4,6 @@
 # Elastic search controller script
 ###
 
-
-
-    -h, --help                 output usage information
-    -V, --version              output the version number
-    -e, --elasticsearch <uri>  Elasticsearch instance
-    -c, --config <path>        Path to the config file
-    -p, --port <port>          The port to bind to
-    -q, --quiet                Turns off logging
-    -H, --host <host>          The host to bind to
-    -l, --log-file <path>      The file to log to
-    --plugins <path>           Path to scan for plugins
-
-
-
-
-
-
 ROOT=$$ROOTDIR$$
 
 K_BIN="${ROOT}/bin/kibana" 

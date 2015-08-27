@@ -54,15 +54,18 @@ do_start()
 		usleep 100000
 		local RUNNING_PID=$(check_process)
 		if [ $RUNNING_PID -gt 0 ]
+		then
 			STARTED=1
 		else
 			really_start
 			usleep 100000
 			local RUNNING_PID=$(check_process)
 			if [ $RUNNING_PID -gt 0 ]
+			then
 				STARTED=1
 			fi
 		fi
+
 		if [ $STARTED -eq 1]
 		then
 			echo "$BASE was started on process $RUNNING_PID"
