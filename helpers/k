@@ -17,8 +17,8 @@ BASE=`basename $0`
 
 really_start()
 {
-	cd $ROOT && ($K_BIN $K_ARGS &>$K_STARTUP_LOG_PATH &)
-	PID=$?
+	$K_BIN $K_ARGS &>$K_STARTUP_LOG_PATH &
+	PID=$!
 	if [ $PID -gt 0 ]
 	then
 		touch $ROOT/var/run/k.pid
@@ -50,12 +50,14 @@ do_start()
 		usleep 100000
 		local RUNNING_PID=$(check_process)
 		if [ $RUNNING_PID -gt 0 ]
+		then
 			STARTED=1
 		else
 			really_start
 			usleep 100000
 			local RUNNING_PID=$(check_process)
 			if [ $RUNNING_PID -gt 0 ]
+			then
 				STARTED=1
 			fi
 		fi

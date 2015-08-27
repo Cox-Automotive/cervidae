@@ -21,8 +21,8 @@ BASE=`basename $0`
 
 really_start()
 {
-	cd $ROOT && ($ES_BIN $ES_ARGS &>$ES_STARTUP_LOG_PATH &)
-	PID=$?
+	$ES_BIN $ES_ARGS &>$ES_STARTUP_LOG_PATH &
+	PID=$!
 	if [ $PID -gt 0 ]
 	then
 		touch $ROOT/var/run/es.pid

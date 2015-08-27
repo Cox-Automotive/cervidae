@@ -19,8 +19,8 @@ BASE=`basename $0`
 
 really_start()
 {
-	cd $ROOT && ($LS_BIN $LS_ARGS &>$LS_STARTUP_LOG_PATH &)
-	PID=$?
+	$LS_BIN $LS_ARGS &>$LS_STARTUP_LOG_PATH &
+	PID=$!
 	if [ $PID -gt 0 ]
 	then
 		touch $ROOT/var/run/ls.pid

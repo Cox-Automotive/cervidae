@@ -63,7 +63,7 @@ $MKDIR -p ${ROOT}/lib
 $MKDIR -p ${ROOT}/logs
 $MKDIR -p ${ROOT}/share
 $MKDIR -p ${ROOT}/tmp
-$MKDIR -p ${ROOT}/var
+$MKDIR -p ${ROOT}/var/run
 $MKDIR -p ${ROOT}/packages
 echo "Complete"
 echo
