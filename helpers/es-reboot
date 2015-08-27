@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+ROOT=$$ROOTDIR$$
+ES_STARTUP_LOG_PATH="$ROOT/logs/elasticsearch-startup.log"
+
+echo "Force reboot using es-reboot. May be due to OOM error." >> $ES_STARTUP_LOG_PATH
+
+$ROOT/bin/es restart

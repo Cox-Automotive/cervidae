@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+ROOT=$$ROOTDIR$$
+K_STARTUP_LOG_PATH="$ROOT/logs/kibana-startup.log"
+
+echo "Force reboot using k-reboot. May be due to OOM error." >> $K_STARTUP_LOG_PATH
+
+$ROOT/bin/k restart

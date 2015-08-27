@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+ROOT=$$ROOTDIR$$
+LS_STARTUP_LOG_PATH="$ROOT/logs/logstash-startup.log"
+
+echo "Force reboot using ls-reboot. May be due to OOM error." >> $LS_STARTUP_LOG_PATH
+
+$ROOT/bin/ls restart

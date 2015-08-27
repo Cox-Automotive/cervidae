@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+### 
+# Elastic search controller script
+###
+
+ROOT=$$ROOTDIR$$
+
+ES_BIN="${ROOT}/bin/elasticsearch"                                                                              
+ES_CONFIG_PATH="$ROOT/etc/elasticsearch/conf/elasticsearch.yml"                                               
+ES_LOG_PATH="$ROOT/logs/elasticsearch.log"
+ES_STARTUP_LOG_PATH="$ROOT/logs/elasticsearch-startup.log"
+ES_TMP_DIR="${ROOT}/tmp/"
+ES_ARGS="-XX:OnOutOfMemoryError=${ROOT}/bin/es-reboot -Des.config=${ES_CONFIG_PATH} -Djna.tmpdir=${ES_TMP_DIR}"
+
+export ES_MIN_MEM=4G
+export ES_MAX_MEM=4G
+export JAVA_OPTS="-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=12 -XX:ParallelGCThreads=12"
+
+BASE=`basename $0`
+
+really_start()
+{
+	cd $ROOT && ($ES_BIN $ES_ARGS &>$ES_STARTUP_LOG_PATH &)
+	PID=$?
+	if [ $PID -gt 0 ]
+	then
+		touch $ROOT/var/run/es.pid
+		echo $PID > $ROOT/var/run/es.pid
+	fi
+}
+
+check_process()
+{
+	# check if the pid exists
+	if [ -f "$ROOT/var/run/es.pid" ]
+	then
+		cat $ROOT/var/run/es.pid
+	else
+		echo 0
+	fi
+}
+
+do_start()
+{
+	STARTED=0
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		echo "Elasticsearch is already running with a process id $RUNNING_PID"
+	else
+		# two tries
+		really_start
+		usleep 100000
+		local RUNNING_PID=$(check_process)
+		if [ $RUNNING_PID -gt 0 ]
+			STARTED=1
+		else
+			really_start
+			usleep 100000
+			local RUNNING_PID=$(check_process)
+			if [ $RUNNING_PID -gt 0 ]
+				STARTED=1
+			fi
+		fi
+		if [ $STARTED -eq 1]
+		then
+			echo "$BASE was started on process $RUNNING_PID"
+		else
+			echo "$BASE was unable to start"
+		fi
+	fi
+}
+
+do_stop()
+{
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		kill -9 -TERM $RUNNING_PID >> $ES_STARTUP_LOG_PATH 2>&1
+	else
+		echo "$BASE is not currently running. If you think it is, you may need to kill it manually."
+	fi
+	# Moving this down here, just for safe clean up
+	rm $ROOT/var/run/es.pid >> $ES_STARTUP_LOG_PATH 2>&1
+}
+
+case "$1" in
+	start)
+		echo "Starting $BASE"
+		do_start
+		;;
+	stop)
+		echo "Stopping $BASE"
+		do_stop
+		;;
+	restart)
+		do_stop
+		usleep 100000
+		do_start
+		;;
+	*)
+		echo "Usage: $BASE {start|stop|restart}"
+esac
+
+echo
+exit 0

@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+### 
+# Elastic search controller script
+###
+
+
+
+    -h, --help                 output usage information
+    -V, --version              output the version number
+    -e, --elasticsearch <uri>  Elasticsearch instance
+    -c, --config <path>        Path to the config file
+    -p, --port <port>          The port to bind to
+    -q, --quiet                Turns off logging
+    -H, --host <host>          The host to bind to
+    -l, --log-file <path>      The file to log to
+    --plugins <path>           Path to scan for plugins
+
+
+
+
+
+
+ROOT=$$ROOTDIR$$
+
+K_BIN="${ROOT}/bin/kibana" 
+K_CONFIG_PATH="$ROOT/etc/kibana/conf/kibana.yml"                                               
+K_PLUGIN_PATH="$ROOT/etc/kibana/plugins"
+K_LOG_PATH="$ROOT/logs/kibana.log"
+K_STARTUP_LOG_PATH="$ROOT/logs/kibana-startup.log"
+K_ARGS="-c $K_CONFIG_PATH --plugins $K_PLUGIN_PATH"
+
+BASE=`basename $0`
+
+really_start()
+{
+	cd $ROOT && ($K_BIN $K_ARGS &>$K_STARTUP_LOG_PATH &)
+	PID=$?
+	if [ $PID -gt 0 ]
+	then
+		touch $ROOT/var/run/k.pid
+		echo $PID > $ROOT/var/run/k.pid
+	fi
+}
+
+check_process()
+{
+	# check if the pid exists
+	if [ -f "$ROOT/var/run/k.pid" ]
+	then
+		cat $ROOT/var/run/k.pid
+	else
+		echo 0
+	fi
+}
+
+do_start()
+{
+	STARTED=0
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		echo "Kibana is already running with a process id $RUNNING_PID"
+	else
+		# two tries
+		really_start
+		usleep 100000
+		local RUNNING_PID=$(check_process)
+		if [ $RUNNING_PID -gt 0 ]
+			STARTED=1
+		else
+			really_start
+			usleep 100000
+			local RUNNING_PID=$(check_process)
+			if [ $RUNNING_PID -gt 0 ]
+				STARTED=1
+			fi
+		fi
+		if [ $STARTED -eq 1]
+		then
+			echo "$BASE was started on process $RUNNING_PID"
+		else
+			echo "$BASE was unable to start"
+		fi
+	fi
+}
+
+do_stop()
+{
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		kill -9 -TERM $RUNNING_PID >> $K_STARTUP_LOG_PATH 2>&1
+	else
+		echo "$BASE is not currently running. If you think it is, you may need to kill it manually."
+	fi
+	# Moving this down here, just for safe clean up
+	rm $ROOT/var/run/k.pid >> $K_STARTUP_LOG_PATH 2>&1
+}
+
+case "$1" in
+	start)
+		echo "Starting $BASE"
+		do_start
+		;;
+	stop)
+		echo "Stopping $BASE"
+		do_stop
+		;;
+	restart)
+		do_stop
+		usleep 100000
+		do_start
+		;;
+	*)
+		echo "Usage: $BASE {start|stop|restart}"
+esac
+
+echo
+exit 0

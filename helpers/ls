@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+### 
+# Logstash controller script
+###
+
+ROOT=$$ROOTDIR$$
+
+LS_BIN="$ROOT/bin/logstash"
+LS_CONFIG_PATH="$ROOT/etc/logstash/conf"                                               
+LS_LOG_PATH="$ROOT/logs/logstash.log"
+LS_STARTUP_LOG_PATH="$ROOT/logs/logstash-startup.log"
+LS_ARGS="-f $LS_CONFIG_PATH -l $LS_LOG_PATH -v"
+
+export LS_HEAP_SIZE=2G
+export JAVA_OPTS="-XX:OnOutOfMemoryError=$ROOT/bin/ls-reboot -Dsun.net.inetaddr.ttl=5 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:ConcGCThreads=12 -XX:ParallelGCThreads=12"
+
+BASE=`basename $0`
+
+really_start()
+{
+	cd $ROOT && ($LS_BIN $LS_ARGS &>$LS_STARTUP_LOG_PATH &)
+	PID=$?
+	if [ $PID -gt 0 ]
+	then
+		touch $ROOT/var/run/ls.pid
+		echo $PID > $ROOT/var/run/ls.pid
+	fi
+}
+
+check_process()
+{
+	# check if the pid exists
+	if [ -f "$ROOT/var/run/ls.pid" ]
+	then
+		cat $ROOT/var/run/ls.pid
+	else
+		echo 0
+	fi
+}
+
+do_start()
+{
+	STARTED=0
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		echo "Logstash is already running with a process id $RUNNING_PID"
+	else
+		# two tries
+		really_start
+		usleep 100000
+		local RUNNING_PID=$(check_process)
+		if [ $RUNNING_PID -gt 0 ]
+			STARTED=1
+		else
+			really_start
+			usleep 100000
+			local RUNNING_PID=$(check_process)
+			if [ $RUNNING_PID -gt 0 ]
+				STARTED=1
+			fi
+		fi
+		if [ $STARTED -eq 1]
+		then
+			echo "$BASE was started on process $RUNNING_PID"
+		else
+			echo "$BASE was unable to start"
+		fi
+	fi
+}
+
+do_stop()
+{
+	local RUNNING_PID=$(check_process)
+	if [ $RUNNING_PID -gt 0 ]
+	then
+		kill -9 -TERM $RUNNING_PID >> $LS_STARTUP_LOG_PATH 2>&1
+	else
+		echo "$BASE is not currently running. If you think it is, you may need to kill it manually."
+	fi
+	# Moving this down here, just for safe clean up
+	rm $ROOT/var/run/ls.pid >> $LS_STARTUP_LOG_PATH 2>&1
+}
+
+case "$1" in
+	start)
+		echo "Starting $BASE"
+		do_start
+		;;
+	stop)
+		echo "Stopping $BASE"
+		do_stop
+		;;
+	restart)
+		do_stop
+		usleep 100000
+		do_start
+		;;
+	*)
+		echo "Usage: $BASE {start|stop|restart}"
+esac
+
+echo
+exit 0

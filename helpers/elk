@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Assumes it lives alongside the other scripts
+PWD=$(pwd)
+BASE=`basename $0`
+
+case "$1" in
+	start)
+		$PWD/es start
+		$PWD/ls start
+		$PWD/k start
+		;;
+	stop)
+		$PWD/es stop
+		$PWD/ls stop
+		$PWD/k stop
+		;;
+	restart)
+		$PWD/es restart
+		$PWD/ls restart
+		$PWD/k restart
+		;;
+	*)
+		echo "Usage: $BASE {start|stop|restart}"
+esac
+
+echo
+exit 0
