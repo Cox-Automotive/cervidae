@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+APPLICATION="myapp"
+
+if [ -n "$1" ]
+then
+	APPLICATION="$1"
+fi
+
 ELASTICSEARCH_VERSION="1.7.0"
 LOGSTASH_VERSION="1.5.3"
 KIBANA_VERSION="4.1.1"
@@ -9,6 +16,8 @@ ROOT=$(pwd)
 MKDIR=$(which mkdir)
 TAR=$(which tar)
 WGET=$(which wget)
+HN=$(hostname)
+SED=$(which sed)
 
 echo "Running pre-flight checklist"
 echo "----------------------------"
@@ -25,6 +34,7 @@ i*86)
 	exit
     ;;
 esac
+echo "    $ARCH"
 echo "Verifying Java"
 java -version >&- 2>&-
 if [[ $? -ne 0 ]]
@@ -43,9 +53,12 @@ PYTHON_SRC="https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_
 # set up directories
 echo "Setting up skeleton structure"
 $MKDIR -p ${ROOT}/bin
-$MKDIR -p ${ROOT}/etc/kibana
-$MKDIR -p ${ROOT}/etc/logstash
-$MKDIR -p ${ROOT}/etc/elasticsearch
+$MKDIR -p ${ROOT}/etc/kibana/conf
+$MKDIR -p ${ROOT}/etc/kibana/plugins
+$MKDIR -p ${ROOT}/etc/logstash/conf
+$MKDIR -p ${ROOT}/etc/logstash/patterns
+$MKDIR -p ${ROOT}/etc/elasticsearch/conf
+$MKDIR -p ${ROOT}/etc/elasticsearch/plugins
 $MKDIR -p ${ROOT}/lib
 $MKDIR -p ${ROOT}/logs
 $MKDIR -p ${ROOT}/share
@@ -93,9 +106,9 @@ mv ${ROOT}/bin/plugin.bat ${ROOT}/bin/elasticsearch-plugin.bat
 cp -R $ELASTICSEARCH_PKG_SRC/lib/* ${ROOT}/lib
 
 echo "Installing Logstash"
-cp -R $LOGSTASH_PKG_SRC/bin/* ${ROOT}/bin
-mv ${ROOT}/bin/plugin ${ROOT}/bin/logstash-plugin
-mv ${ROOT}/bin/plugin.bat ${ROOT}/bin/logstash-plugin.bat
+cp -R $LOGSTASH_PKG_SRC/bin/* $ROOT/bin
+mv ${ROOT}/bin/plugin $ROOT/bin/logstash-plugin
+mv ${ROOT}/bin/plugin.bat $ROOT/bin/logstash-plugin.bat
 cp -R $LOGSTASH_PKG_SRC/lib/* $ROOT/lib
 cp -R $LOGSTASH_PKG_SRC/Gemfile* $ROOT/
 cp -R $LOGSTASH_PKG_SRC/vendor $ROOT/
@@ -109,14 +122,13 @@ echo "Installing Python"
 (cd $PYTHON_PKG_SRC && $PYTHON_PKG_SRC/configure -q --prefix=$ROOT --enable-shared) && make -C $PYTHON_PKG_SRC && make install -C $PYTHON_PKG_SRC
 cd $ROOT
 
-if [ ! -e "${ROOT}/bin/python" ]
-then
+if [ ! -e "${ROOT}/bin/python" ]; then
 	echo "Setting up symlinks"
-	if [ -e "${ROOT}/bin/python3" ]			# python3 preferred
-	then
+	if [ -e "${ROOT}/bin/python3" ]; then			# python3 preferred
+		echo "Linking python3"
 		ln -s ${ROOT}/bin/python3 ${ROOT}/bin/python
-	else if [ -e "${ROOT}/bin/python2" ]
-	then
+	elif [ -e "${ROOT}/bin/python2" ]; then
+		echo "Linking python2"
 		ln -s ${ROOT}/bin/python2 ${ROOT}/bin/python
 	else
 		echo ""
@@ -126,3 +138,73 @@ then
 		echo ""
 	fi
 fi
+
+export PATH=${ROOT}/bin:${PATH}
+
+echo "Everything is installed. Adding customizations."
+
+# logstash confs
+$WGET -O $ROOT/etc/logstash/conf/in.conf https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/in.conf
+$WGET -O $ROOT/etc/logstash/conf/filter.conf https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/filter.conf
+$WGET -O $ROOT/etc/logstash/conf/out.conf https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/out.conf
+
+$SED -i "s|\\\$\\\$APP\\\$\\\$|$APPLICATION|g" $ROOT/etc/logstash/conf/in.conf 
+$SED -i "s|\\\$\\\$HOSTNAME\\\$\\\$|$HN|g" $ROOT/etc/logstash/conf/in.conf 
+$SED -i "s|\\\$\\\$APP\\\$\\\$|$APPLICATION|g" $ROOT/etc/logstash/conf/filter.conf 
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/etc/logstash/conf/filter.conf 
+$SED -i "s|\\\$\\\$HOSTNAME\\\$\\\$|$HN|g" $ROOT/etc/logstash/conf/out.conf 
+
+# logstash pattern
+$WGET -O $ROOT/etc/logstash/patterns/apache https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/apache
+$WGET -O $ROOT/etc/logstash/patterns/firewalls https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/apache
+$WGET -O $ROOT/etc/logstash/patterns/grok-patterns https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/apache
+$WGET -O $ROOT/etc/logstash/patterns/haproxy https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/haproxy
+$WGET -O $ROOT/etc/logstash/patterns/java https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/java
+$WGET -O $ROOT/etc/logstash/patterns/junos https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/junos
+$WGET -O $ROOT/etc/logstash/patterns/linux-syslog https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/linux-syslog
+$WGET -O $ROOT/etc/logstash/patterns/mcollective https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/mcollective
+$WGET -O $ROOT/etc/logstash/patterns/mcollective-patterns https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/mcollective-patterns
+$WGET -O $ROOT/etc/logstash/patterns/mongodb https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/mongodb
+$WGET -O $ROOT/etc/logstash/patterns/nagios https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/nagios
+$WGET -O $ROOT/etc/logstash/patterns/postgresql https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/postgresql
+$WGET -O $ROOT/etc/logstash/patterns/redis https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/redis
+$WGET -O $ROOT/etc/logstash/patterns/ruby https://raw.githubusercontent.com/andrew-sledge/cervidae/master/logstash_confs/patterns/ruby
+
+# es conf - and logging
+$WGET -O $ROOT/etc/elasticsearch/conf/elasticsearch.yml https://raw.githubusercontent.com/andrew-sledge/cervidae/master/elasticsearch_confs/elasticsearch.yml
+$WGET -O $ROOT/etc/elasticsearch/conf/logging.yml https://raw.githubusercontent.com/andrew-sledge/cervidae/master/elasticsearch_confs/logging.yml
+
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/etc/elasticsearch/conf/elasticsearch.yml
+$SED -i "s|\\\$\\\$HOSTNAME\\\$\\\$|$HN|g" $ROOT/etc/elasticsearch/conf/elasticsearch.yml
+
+# kibana conf
+$WGET -O $ROOT/etc/kibana/conf/kibana.yml https://raw.githubusercontent.com/andrew-sledge/cervidae/master/kibana_confs/kibana.yml
+$SED -i "s|\\\$\\\$HOSTNAME\\\$\\\$|$HN|g" $ROOT/etc/kibana/conf/kibana.yml
+
+# helper files
+$WGET -O $ROOT/bin/es https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/es
+$WGET -O $ROOT/bin/es-reboot https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/es-reboot
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/es
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/es-reboot
+chmod 0755 $ROOT/bin/es
+chmod 0755 $ROOT/bin/es-reboot
+
+$WGET -O $ROOT/bin/ls https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/ls
+$WGET -O $ROOT/bin/ls-reboot https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/ls-reboot
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/ls
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/ls-reboot
+chmod 0755 $ROOT/bin/ls
+chmod 0755 $ROOT/bin/ls-reboot
+
+$WGET -O $ROOT/bin/k https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/k
+$WGET -O $ROOT/bin/k-reboot https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/k-reboot
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/k
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/k-reboot
+chmod 0755 $ROOT/bin/k
+chmod 0755 $ROOT/bin/k-reboot
+
+$WGET -O $ROOT/bin/elk https://raw.githubusercontent.com/andrew-sledge/cervidae/master/helpers/elk
+$SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/elk
+chmod 0755 $ROOT/bin/elk
+
+export PATH=$ROOT/bin:$PATH

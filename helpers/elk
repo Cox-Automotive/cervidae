@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
 # Assumes it lives alongside the other scripts
-PWD=$(pwd)
+ROOT=$$ROOTDIR$$
 BASE=`basename $0`
 
 case "$1" in
 	start)
-		$PWD/es start
-		$PWD/ls start
-		$PWD/k start
+		$ROOT/bin/es start
+		$ROOT/bin/ls start
+		$ROOT/bin/k start
 		;;
 	stop)
-		$PWD/es stop
-		$PWD/ls stop
-		$PWD/k stop
+		$ROOT/bin/es stop
+		$ROOT/bin/ls stop
+		$ROOT/bin/k stop
 		;;
 	restart)
-		$PWD/es restart
-		$PWD/ls restart
-		$PWD/k restart
+		$ROOT/bin/es restart
+		$ROOT/bin/ls restart
+		$ROOT/bin/k restart
 		;;
 	*)
 		echo "Usage: $BASE {start|stop|restart}"
