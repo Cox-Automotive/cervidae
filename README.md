@@ -4,7 +4,7 @@ Get an ELK stack up and running quickly and easily on a Linux machine. A lot of 
 
 ## How it works
 
-Download the cervidae.sh script to your Linux box and run it. The only prerequisite is java.
+Download the cervidae.sh script to your Linux box and run it. The only prerequisites are java and a compiler (gcc tested).
 
 ```
 $ wget https://raw.githubusercontent.com/andrew-sledge/cervidae/master/cervidae.sh
@@ -20,3 +20,9 @@ A running instance of Elasticsearch, Logstash, and Kibana as well as configurati
 ## Who is this for?
 
 Mainly developers looking to run an ELK stack on their dev box. 
+
+## TODO
+
+* Additional Elasticsearch scripts for pulling reports (in Python)
+* Elasticsearch template files
+* Logstash config file creator
