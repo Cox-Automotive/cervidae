@@ -7,8 +7,7 @@ Get an ELK stack up and running quickly and easily on a Linux machine. A lot of 
 Download the cervidae.sh script to your Linux box and run it. The only prerequisites are java and a compiler (gcc tested).
 
 ```
-$ wget https://raw.githubusercontent.com/andrew-sledge/cervidae/master/cervidae.sh
-$ bash ./cervidae.sh
+$ wget -O - https://raw.githubusercontent.com/Cox-Automotive/cervidae/master/cervidae.sh | bash
 ```
 
 The default Logstash configuration is watching ```/var/logs/httpd/access.log```, and you'll probably want to add to that. Start it up with
