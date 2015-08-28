@@ -30,3 +30,4 @@ Mainly developers looking to run an ELK stack on their dev box.
 * Additional Elasticsearch scripts for pulling reports (in Python)
 * Elasticsearch template files
 * Logstash config file creator
+* Cleanup and testing
