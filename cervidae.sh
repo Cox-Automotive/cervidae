@@ -119,7 +119,7 @@ cp -R $KIBANA_PKG_SRC/node $ROOT/
 cp -R $KIBANA_PKG_SRC/src $ROOT/
 
 echo "Installing Python"
-(cd $PYTHON_PKG_SRC && $PYTHON_PKG_SRC/configure -q --prefix=$ROOT --enable-shared) && make -C $PYTHON_PKG_SRC && make install -C $PYTHON_PKG_SRC
+(cd $PYTHON_PKG_SRC && $PYTHON_PKG_SRC/configure --prefix=$ROOT --enable-shared) && make -C $PYTHON_PKG_SRC && make install -C $PYTHON_PKG_SRC
 cd $ROOT
 
 if [ ! -e "${ROOT}/bin/python" ]; then
@@ -208,3 +208,5 @@ $SED -i "s|\\\$\\\$ROOTDIR\\\$\\\$|$ROOT|g" $ROOT/bin/elk
 chmod 0755 $ROOT/bin/elk
 
 export PATH=$ROOT/bin:$PATH
+
+echo "Start the stack with ./bin/elk start"

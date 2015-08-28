@@ -11,7 +11,11 @@ $ wget https://raw.githubusercontent.com/andrew-sledge/cervidae/master/cervidae.
 $ bash ./cervidae.sh
 ```
 
-The default Logstash configuration is watching ```/var/logs/httpd/access.log```, and you'll probably want to add to that.
+The default Logstash configuration is watching ```/var/logs/httpd/access.log```, and you'll probably want to add to that. Start it up with
+
+```
+$ ./bin/elk start
+```
 
 ## What to expect
 
