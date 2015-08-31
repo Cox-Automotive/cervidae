@@ -42,7 +42,7 @@ class PFCTest(unittest.TestCase):
             self.assertRaises(RuntimeError)
 
     def test_java(self):
-        java_out = subprocess.check_output(["java", "-version"])
+        java_out = subprocess.check_output(["java", "-version"], shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
         if len(java_out) == 0:
             self.assertIn("Java not found", self.output)
         
