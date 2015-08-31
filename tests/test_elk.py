@@ -43,7 +43,7 @@ class PFCTest(unittest.TestCase):
 
     def test_java(self):
         java_out = subprocess.check_output(["java", "-version"])
-        if java_out == "":
+        if len(java_out) == 0:
             self.assertIn("Java not found", self.output)
         
     def test_pfc_complete(self):
