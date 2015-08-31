@@ -17,12 +17,12 @@ class BashFunctionCaller(object):
                 return subprocess.check_output(
                         ['bash', '-c', 'source {} && {} {}'.format(script_path, name, " ".join(args))],
                         universal_newlines=True)
-
+                
             return call_fun
-
+       
 
 # inspired by https://github.com/bernardpaulus/bash_unittest
-
+ 
 class PFCTest(unittest.TestCase):
     def setUp(self):
         self.script = BashFunctionCaller("../cervidae_funcs.sh")
@@ -45,7 +45,7 @@ class PFCTest(unittest.TestCase):
         java_out = subprocess.check_output(["java", "-version"])
         if java_out == "":
             self.assertIn("Java not found", self.output)
-
+        
     def test_pfc_complete(self):
         self.assertIn("Complete", self.output)
 
@@ -57,16 +57,16 @@ class DirectoryTest(unittest.TestCase):
         self.output = self.script.setup_directories()
 
     def test_directories(self):
-        self.assertTrue(os.path.isdir("../bin"))
-        self.assertTrue(os.path.isdir("../etc/kibana/conf"))
-        self.assertTrue(os.path.isdir("../etc/kibana/plugins"))
-        self.assertTrue(os.path.isdir("../etc/logstash/conf"))
-        self.assertTrue(os.path.isdir("../etc/logstash/patterns"))
-        self.assertTrue(os.path.isdir("../etc/elasticsearch/conf"))
-        self.assertTrue(os.path.isdir("../etc/elasticsearch/plugins"))
-        self.assertTrue(os.path.isdir("../lib"))
-        self.assertTrue(os.path.isdir("../logs"))
-        self.assertTrue(os.path.isdir("../share"))
-        self.assertTrue(os.path.isdir("../tmp"))
-        self.assertTrue(os.path.isdir("../var/run"))
-        self.assertTrue(os.path.isdir("../packages"))
+        self.assertTrue(os.path.isdir("./bin"))
+        self.assertTrue(os.path.isdir("./etc/kibana/conf"))
+        self.assertTrue(os.path.isdir("./etc/kibana/plugins"))
+        self.assertTrue(os.path.isdir("./etc/logstash/conf"))
+        self.assertTrue(os.path.isdir("./etc/logstash/patterns"))
+        self.assertTrue(os.path.isdir("./etc/elasticsearch/conf"))
+        self.assertTrue(os.path.isdir("./etc/elasticsearch/plugins"))
+        self.assertTrue(os.path.isdir("./lib"))
+        self.assertTrue(os.path.isdir("./logs"))
+        self.assertTrue(os.path.isdir("./share"))
+        self.assertTrue(os.path.isdir("./tmp"))
+        self.assertTrue(os.path.isdir("./var/run"))
+        self.assertTrue(os.path.isdir("./packages"))
