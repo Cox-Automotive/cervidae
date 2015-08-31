@@ -2,7 +2,7 @@
 
 import subprocess
 import unittest
-import os.path
+import os
 import sys
 import platform
 
@@ -48,3 +48,25 @@ class PFCTest(unittest.TestCase):
         
     def test_pfc_complete(self):
         self.assertIn("Complete", self.output)
+
+
+class DirectoryTest(unittest.TestCase):
+    def setUp(self):
+        self.script = BashFunctionCaller("../cervidae_funcs.sh")
+        self.pf = self.script.preflight_checklist()
+        self.output = self.script.setup_directories()
+
+    def test_directories(self):
+        self.assertTrue(os.path.isdir("../bin")
+        self.assertTrue(os.path.isdir("../etc/kibana/conf")
+        self.assertTrue(os.path.isdir("../etc/kibana/plugins")
+        self.assertTrue(os.path.isdir("../etc/logstash/conf")
+        self.assertTrue(os.path.isdir("../etc/logstash/patterns")
+        self.assertTrue(os.path.isdir("../etc/elasticsearch/conf")
+        self.assertTrue(os.path.isdir("../etc/elasticsearch/plugins")
+        self.assertTrue(os.path.isdir("../lib")
+        self.assertTrue(os.path.isdir("../logs")
+        self.assertTrue(os.path.isdir("../share")
+        self.assertTrue(os.path.isdir("../tmp")
+        self.assertTrue(os.path.isdir("../var/run")
+        self.assertTrue(os.path.isdir("../packages")
