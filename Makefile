@@ -9,7 +9,6 @@ noop:
 	@echo "  * funcs: copy the cervidae functions into it's own _funcs file for testing"
 	@echo "  * test: runs the full test suite (run 'make funcs' before running this)"
 	@echo "  * clean: cleans up installation (leaves packages directory)"
-	@echo " -------------------------------------------------------------------------- "
 
 funcs: cervidae.sh
 	@echo Moving $(LC) lines
