@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPLICATION="myapp"
+APPLICATION="cervidae"
 
 if [ -n "$1" ]
 then
