@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPLICATION="myapp"
+APPLICATION="cervidae"
 
 if [ -n "$1" ]
 then
@@ -39,7 +39,7 @@ preflight_checklist()
     esac
     echo "    $ARCH"
     echo "  Verifying Java"
-    java -version >&- 2>&-
+    java -version >&- 2>&-		# Fun fact: ```java -version``` prints to stderr
     if [[ $? -ne 0 ]]
     then
         echo "    Java not found. Exiting!"
@@ -50,7 +50,6 @@ preflight_checklist()
     LOGSTASH_SRC="https://download.elastic.co/logstash/logstash/logstash-${LOGSTASH_VERSION}.tar.gz"
     KIBANA_SRC="https://download.elastic.co/kibana/kibana/kibana-${KIBANA_VERSION}-linux-${ARCH}.tar.gz"
     PYTHON_SRC="https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
-    
     ELASTICSEARCH_PKG_SRC="${PACKAGE_ROOT}/elasticsearch-${ELASTICSEARCH_VERSION}"
     LOGSTASH_PKG_SRC="${PACKAGE_ROOT}/logstash-${LOGSTASH_VERSION}"
     KIBANA_PKG_SRC="${PACKAGE_ROOT}/kibana-${KIBANA_VERSION}-linux-${ARCH}"
@@ -98,7 +97,7 @@ extract_packages()
     LOGSTASH_PKG_ROOT="${PACKAGE_ROOT}/logstash-${LOGSTASH_VERSION}.tar.gz"
     KIBANA_PKG_ROOT="${PACKAGE_ROOT}/kibana-${KIBANA_VERSION}-linux-${ARCH}.tar.gz"
     PYTHON_PKG_ROOT="${PACKAGE_ROOT}/Python-${PYTHON_VERSION}.tgz"
-    $TAR -xzf $ELASTICSEARCH_PKG_ROOT -C $PACKAGE_ROOT        # Everyone uses GNU tar, right? Right???
+    $TAR -xzf $ELASTICSEARCH_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $LOGSTASH_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $KIBANA_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $PYTHON_PKG_ROOT -C $PACKAGE_ROOT
