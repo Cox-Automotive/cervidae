@@ -15,6 +15,8 @@ funcs: cervidae.sh
 	@HC=$$(( $(LC) - $(DONTTOUCH) )); head -$$HC cervidae.sh > cervidae_funcs.sh
 
 backup: cervidae.sh Makefile tests
+	rm -rf tests/__pycache__
+	rm -rf tests/*.pyc
 	cp -R {cervidae.sh,Makefile,tests} /vagrant/cervidae/
 
 test: tests

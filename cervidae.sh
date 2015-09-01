@@ -98,7 +98,7 @@ extract_packages()
     LOGSTASH_PKG_ROOT="${PACKAGE_ROOT}/logstash-${LOGSTASH_VERSION}.tar.gz"
     KIBANA_PKG_ROOT="${PACKAGE_ROOT}/kibana-${KIBANA_VERSION}-linux-${ARCH}.tar.gz"
     PYTHON_PKG_ROOT="${PACKAGE_ROOT}/Python-${PYTHON_VERSION}.tgz"
-    $TAR -xzf $ELASTICSEARCH_PKG_ROOT -C $PACKAGE_ROOT        # Everyone uses GNU tar, right? Right???
+    $TAR -xzf $ELASTICSEARCH_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $LOGSTASH_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $KIBANA_PKG_ROOT -C $PACKAGE_ROOT
     $TAR -xzf $PYTHON_PKG_ROOT -C $PACKAGE_ROOT
